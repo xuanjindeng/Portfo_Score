@@ -2,11 +2,13 @@
 # install.packages("dplyr")
 # install.packages("tidyr")
 # install.packages("reshape2")
+install.packages("data.table")
 
 library(Rglpk)
 library(dplyr)
 library(tidyr)
 library(reshape2)
+library(data.table)
 
 Portfopti_score <- function(Return_data,score_data,alpha,omega){
   ## Inputs: Returndata---The logarithm return data
@@ -49,7 +51,13 @@ bounds <- list(lower = list(ind = c(1L),val = c(-Inf)),
                     
 Retur <- Rglpk::Rglpk_solve_LP(Opti_obj,mat,dir,rhs,bounds,max=TRUE)
                     
-Retur$solution[2:(data_dim[2]+1)]
+weights <- Retur$solution[2:(data_dim[2]+1)]
+
+names(weights) <- colnames(Return_data)
+
+data.table(INNERCODE = (names(weights)[weights > 0]),
+           WEIGHT = round(weights[weights > 0.0], 6),
+           key = "INNERCODE")
 }
 
 
@@ -76,8 +84,9 @@ name_rtn_mat <- variable.names(rtn_mat)
 name <- Reduce(intersect,list(v1 = name_score,v2 = name_rtn_mat))
 
 score <- score[,name]
+rtn_mat <- rtn_mat[,name]
 
-Portfopti_score(rtn_mat[,1:10],score[,1:10],0.8,0.2)
+Portfopti_score(rtn_mat,score,0.8,0.2)
 
 
 
