@@ -1,4 +1,4 @@
-install.packages("FRAPO")
+# install.packages("FRAPO")
 library(FRAPO)
 data(StockIndex)
 popt <- PCDaR(PriceData = StockIndex, alpha = 0.95,
